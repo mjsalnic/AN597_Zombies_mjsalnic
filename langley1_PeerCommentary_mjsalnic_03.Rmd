@@ -1,0 +1,236 @@
+---
+title: "AN597_Zombies_mjsalnic"
+author: "majo"
+date: "7/10/2019"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+# Comments from Peer Commentary
+1. In order for your ##'s to make the different sized headings when you knit your file, you want to have a space in between the # and the text so: ## Challenges
+2. For question 1, you did it one step shorter than me! We got the same answers but you're way definitley is faster. 
+3. For question 3, you plotted the log(age) and log(height), I was also deciding to plot the log() or not. I'm not sure when plotting the log() is more appropriate. 
+4. For question 5, your t.test() is so much easier than the code I used to calculate the 95% CI...
+5. For question 6, I had the same exact issue as you and I couldn't find a way to extract each variable within the 99 samples. The only way I could pull out a variable was to call a specific sample from the 99 samples s2[[1]]$weight (s2 is what I called the dummy variable to hold all of my 99 samples in)
+
+
+##Challenges
+
+*
+<ol>
+<li>problem 1: Question 5, I am not sure which code to use for confidence intervals when it a right skewed distribution
+<li>problem 2: Question 6, I could do the 99 more random samples of 30 zombie apocalypse survivors but then I could not extract each varibale from each replication and find the mean of means for each variable
+
+
+##1. Calculate the population mean and standard deviation for each quantitative random variable (height, weight, age, number of zombies killed, and years of education). NOTE: You will not want to use the built in var() and sd() commands as these are for samples.
+
+
+```{r population mean and standard deviation}
+library(curl)
+f <- f <- curl("https://raw.githubusercontent.com/fuzzyatelin/fuzzyatelin.github.io/master/AN597_Fall19/zombies.csv")
+d <- read.csv(f, header = TRUE, sep = ",", stringsAsFactors = FALSE)
+summary(d)
+attach(d)
+mean(height)
+Height_sigma<- sqrt(sum((height - mean(height))^2)/length(height))
+Height_sigma
+
+mean(weight)
+weight_sigma<- sqrt(sum((weight - mean(weight))^2)/length(weight))
+weight_sigma
+
+mean(age)
+age_sigma<- sqrt(sum((age - mean(age))^2)/length(age))
+age_sigma
+
+mean(zombies_killed)
+zombiesKilled_sigma<- sqrt(sum((zombies_killed - mean(zombies_killed))^2)/length(zombies_killed))
+zombiesKilled_sigma
+
+
+mean(years_of_education)
+yearsofedu_sigma<- sqrt(sum((years_of_education - mean(years_of_education))^2)/length(years_of_education))
+yearsofedu_sigma
+
+```
+
+##2. Use {ggplot} to make boxplots of each of these variables by gender.
+```{r boxplots by gender}
+
+library(ggplot2)
+#height by gender
+boxplot(height~gender,main="Boxplot of Height by gender", ylab = "height (inches)", names=c("Females", "Males"))
+
+#weight by gender
+boxplot(weight~gender,main="Boxplot of weight by gender", ylab = "weight (lbs)", names=c("Females", "Males"))
+
+#age by gender
+boxplot(age~gender,main="Boxplot of age by gender", ylab = "age", names=c("Females", "Males"))
+
+#number of zombies killed  by gender
+boxplot(zombies_killed~gender,main="Boxplot of zombies killed by gender", ylab = "zombies killed", names=c("Females", "Males"))
+
+#number of years of education  by gender
+boxplot(years_of_education~gender,main="Boxplot of years of education by gender", ylab = "years of education", names=c("Females", "Males"))
+```
+
+##3. Use {ggplot} to make scatterplots of height and weight in relation to age. Do these variables seem to be related? In what way?
+
+```{r scatterplots of height and weight in relation to age}
+plot(age, height, main = "Scatterplot age and height", xlab = "Age", ylab = "height")
+
+plot(x= log(age), y= log(height))
+
+
+plot(age, weight, main = "Scatterplot age and weight", xlab = "Age", ylab = "weight")
+
+plot(x= log(age), y= log(weight))
+
+```
+
+##4. Using histograms and Q-Q plots, check whether the quantitative variables seem to be drawn from a normal distribution. Which seem to be and which do not (hint: not all are drawn from the normal distribution)? For those that are not normal, can you determine from which common distribution they are drawn?
+
+```{r Q-Q plots}
+qqnorm(height,main="Normal QQ plot height")
+qqline(height,col="gray")
+
+
+qqnorm(weight,main="Normal QQ plot weight")
+qqline(weight,col="gray")
+
+
+qqnorm(age,main="Normal QQ plot age")
+qqline(weight,col="gray")
+
+qqnorm(zombies_killed,main="Normal QQ plot zombies killed")
+qqline(zombies_killed,col="gray")
+hist(zombies_killed)
+#zombies killed does not drawn from a normal distribution
+
+
+
+qqnorm(years_of_education,main="Normal QQ plot years of education")
+qqline(years_of_education,col="gray")
+
+hist(years_of_education)
+
+#years of education does not drawn from a normal distribution
+```
+
+##5. Now use the sample() function to sample ONE subset of 30 zombie survivors (without replacement) from this population and calculate the mean and sample standard deviation for each variable. Also estimate the standard error for each variable, and construct the 95% confidence interval for each mean. Note that for the variables that are not drawn from the normal distribution, you may need to base your estimate of the CIs on slightly different code than for the normal…
+
+```{r}
+library(sciplot)
+sample30<-d[sample(1:nrow(d), 30,
+   replace=FALSE),]
+
+detach(d)
+
+attach(sample30)
+summary(sample30)
+
+
+##Height
+mean(sample30$height)
+sd(sample30$height)
+se(sample30$height)
+t.test(sample30$height)
+
+qqnorm(height,main="Normal QQ plot height")
+qqline(height,col="gray")
+hist(height)
+
+##Weight
+mean(sample30$weight)
+sd(sample30$weight)
+se(weight)
+t.test(sample30$weight)
+
+
+qqnorm(weight,main="Normal QQ plot weight")
+qqline(weight,col="gray")
+hist(weight)
+
+##Age
+mean(sample30$age)
+sd(sample30$age)
+se(age)
+t.test(sample30$age)
+
+qqnorm(age,main="Normal QQ plot age")
+qqline(weight,col="gray")
+hist(age)
+
+##Zombies killed
+
+mean(sample30$zombies_killed)
+sd(sample30$zombies_killed)
+se(sample30$zombies_killed)
+t.test(sample30$zombies_killed)### CI are not done, I need to use another function or code because this is for normal and this variable is right skewed
+
+qqnorm(zombies_killed,main="Normal QQ plot zombies killed")
+qqline(zombies_killed,col="gray")
+hist(zombies_killed)
+
+
+##Years of education
+
+mean(sample30$years_of_education)
+sd(sample30$years_of_education)
+se(sample30$years_of_education)
+t.test(sample30$years_of_education)### CI are not done, I need to use another function or code because this is for normal and this variable is right skewed
+
+qqnorm(years_of_education,main="Normal QQ plot years of education")
+qqline(years_of_education,col="gray")
+hist(years_of_education)
+
+detach(sample30)
+```
+
+##6. Now draw 99 more random samples of 30 zombie apocalypse survivors, and calculate the mean for each variable for each of these samples. Together with the first sample you drew, you now have a set of 100 means for each variable (each based on 30 observations), which constitutes a sampling distribution for each variable. What are the means and standard deviations of this distribution of means for each variable? How do the standard deviations of means compare to the standard errors estimated in [5]? What do these sampling distributions look like (a graph might help here)? Are they normally distributed? What about for those variables that you concluded were not originally drawn from a normal distribution?
+
+
+```{r 99 random samples}
+attach(d)
+
+k <- 99 # number of samples
+n <- 30 # size of each sample
+s <- NULL # dummy variable to hold each sample
+for (i in 1:k){
+    s[[i]] <- d[sample(1:nrow(d), 30,
+   replace=FALSE),]
+}
+head(s)
+## I could do the 99 random samples but I do not know how to extract the mean of each variable
+
+##this code does not work
+##hm <- NULL
+##for (i in 1:k){
+##    hm[i] <- mean(s[[i]])
+##    }
+##mean(hm)
+
+```
+
+
+## R Markdown
+
+This is an R Markdown document. Markdown is a simple formatting syntax for authoring HTML, PDF, and MS Word documents. For more details on using R Markdown see <http://rmarkdown.rstudio.com>.
+
+When you click the **Knit** button a document will be generated that includes both content as well as the output of any embedded R code chunks within the document. You can embed an R code chunk like this:
+
+```{r cars}
+summary(cars)
+```
+
+## Including Plots
+
+You can also embed plots, for example:
+
+```{r pressure, echo=FALSE}
+plot(pressure)
+```
+
+Note that the `echo = FALSE` parameter was added to the code chunk to prevent printing of the R code that generated the plot.
